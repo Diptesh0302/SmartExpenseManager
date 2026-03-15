@@ -1,0 +1,592 @@
+
+# SMART EXPENSE MANAGER — COMPLETE PROJECT GUIDE
+# Core Java Console Application | Portfolio Project
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## TABLE OF CONTENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Project Overview
+  2. Complete File Structure
+  3. How Each Class Works
+  4. Java Concepts Used (with examples)
+  5. How to Compile & Run
+  6. Full Example Terminal Output (all 9 features)
+  7. How Data is Saved (CSV file example)
+  8. Common Errors & Fixes
+  9. How to Upload to GitHub
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 1. PROJECT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Smart Expense Manager is a console-based personal finance tracker
+built using ONLY Core Java — no frameworks, no libraries, no IDE
+plugins required. Just Java.
+
+Users can:
+  • Add income and expense transactions
+  • View and search transactions
+  • Delete transactions with confirmation
+  • See category-wise spending charts
+  • View monthly and date-range reports
+  • Save/load data from a CSV file automatically
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 2. COMPLETE FILE STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SmartExpenseManager/
+│
+├── src/                          ← All Java source code
+│   ├── Main.java                 ← Entry point + all menu logic (387 lines)
+│   │
+│   ├── model/
+│   │   └── Expense.java          ← Transaction data class (110 lines)
+│   │
+│   ├── service/
+│   │   └── ExpenseService.java   ← Business logic & CRUD (231 lines)
+│   │
+│   ├── storage/
+│   │   └── FileManager.java      ← CSV file read/write (115 lines)
+│   │
+│   └── utils/
+│       ├── Colors.java           ← ANSI color constants (59 lines)
+│       ├── InputValidator.java   ← User input handling (153 lines)
+│       └── ReportGenerator.java  ← Reports & tables (245 lines)
+│
+├── out/                          ← Compiled .class files (auto-created)
+├── expenses.csv                  ← Saved data (auto-created on first save)
+│
+├── run.bat                       ← Windows: double-click to compile & run
+├── run.sh                        ← Linux/Mac: ./run.sh to compile & run
+└── README.md                     ← Project documentation
+
+TOTAL: 7 Java files | 1,300 lines of code
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 3. HOW EACH CLASS WORKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────┐
+│  Expense.java  (model layer)                                │
+├─────────────────────────────────────────────────────────────┤
+│  Represents ONE transaction.                                │
+│  Fields: id, title, category, amount, type, date           │
+│                                                             │
+│  Key methods:                                               │
+│    toCsvString()    → "1,Lunch,Food,250.0,EXPENSE,15-03-26" │
+│    fromCsvString()  → reads that line back into an object   │
+│    toString()       → pretty-prints the transaction         │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  ExpenseService.java  (service layer)                       │
+├─────────────────────────────────────────────────────────────┤
+│  Manages ALL transactions using an ArrayList<Expense>       │
+│                                                             │
+│  Methods:                                                   │
+│    addExpense()          → validates + adds to ArrayList    │
+│    viewAllExpenses()     → returns copy of the list         │
+│    searchByCategory()    → loops and filters by category    │
+│    deleteExpense(id)     → finds by ID and removes          │
+│    calculateTotalExpense()  → sums all EXPENSE amounts      │
+│    calculateTotalIncome()   → sums all INCOME amounts       │
+│    calculateBalance()       → income - expenses             │
+│    sortByAmount()        → Comparator.comparingDouble       │
+│    sortByDateDesc()      → Comparator.comparing.reversed()  │
+│    filterByMonth()       → filter by month + year           │
+│    filterByDateRange()   → filter between two LocalDates    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  FileManager.java  (storage layer)                          │
+├─────────────────────────────────────────────────────────────┤
+│  Reads and writes expenses.csv using BufferedReader/Writer  │
+│                                                             │
+│  saveExpensesToFile()  → writes CSV with try-with-resources │
+│  loadExpensesFromFile() → reads CSV, skips header, parses  │
+│                                                             │
+│  Auto-loads on startup. Auto-prompts to save on exit.      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  ReportGenerator.java  (utils layer)                        │
+├─────────────────────────────────────────────────────────────┤
+│  Generates all visual output / reports                      │
+│                                                             │
+│  printTransactionTable()  → formatted table with colors     │
+│  printFinancialSummary()  → income / expense / balance      │
+│  printCategoryBreakdown() → HashMap grouping + ASCII bars   │
+│  printMonthlyReport()     → filter by month then display    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  InputValidator.java  (utils layer)                         │
+├─────────────────────────────────────────────────────────────┤
+│  All Scanner-based input reading, with validation loops     │
+│                                                             │
+│  readString()         → rejects empty input                 │
+│  readPositiveDouble() → rejects negative/zero/non-numeric   │
+│  readIntInRange()     → enforces min/max bounds             │
+│  readDate()           → parses dd-MM-yyyy, accepts "today"  │
+│  readType()           → E or I → "EXPENSE" or "INCOME"      │
+│  readConfirmation()   → y/n prompt                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Colors.java  (utils layer)                                 │
+├─────────────────────────────────────────────────────────────┤
+│  ANSI escape code constants for colored terminal output     │
+│                                                             │
+│  Colors.GREEN + "text" + Colors.RESET  → green text        │
+│  Colors.RED, CYAN, YELLOW, BOLD, etc.                      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│  Main.java  (application layer)                             │
+├─────────────────────────────────────────────────────────────┤
+│  Entry point. Contains the main menu loop.                  │
+│  Each menu option calls a private method:                   │
+│                                                             │
+│    addTransaction()       → feature 1                       │
+│    viewAllTransactions()  → feature 2                       │
+│    searchByCategory()     → feature 3                       │
+│    deleteTransaction()    → feature 4                       │
+│    viewFinancialSummary() → feature 5                       │
+│    saveData()             → feature 6                       │
+│    sortTransactions()     → feature 7                       │
+│    monthlyReport()        → feature 8                       │
+│    filterByDateRange()    → feature 9                       │
+│    exitApp()              → feature 10 (offers to save)     │
+└─────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 4. JAVA CONCEPTS DEMONSTRATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONCEPT 1 — ENCAPSULATION (Expense.java)
+  All fields are private. Access only through getters/setters.
+  Example:
+    private double amount;
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+
+CONCEPT 2 — ARRAYLIST (ExpenseService.java)
+  All transactions stored in: ArrayList<Expense> transactions
+  Add:    transactions.add(expense);
+  Remove: transactions.remove(i);
+  Loop:   for (Expense e : transactions) { ... }
+
+CONCEPT 3 — HASHMAP (ReportGenerator.java)
+  Groups expenses by category:
+    HashMap<String, Double> categoryMap = new HashMap<>();
+    categoryMap.merge(e.getCategory(), e.getAmount(), Double::sum);
+  Result: { "Food" → 4500.0, "Transport" → 2200.0, "Rent" → 5000.0 }
+
+CONCEPT 4 — FILE HANDLING (FileManager.java)
+  Writing:
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter("expenses.csv"))) {
+        writer.write(expense.toCsvString());
+        writer.newLine();
+    }   // auto-closed by try-with-resources
+
+  Reading:
+    try (BufferedReader reader = new BufferedReader(new FileReader("expenses.csv"))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            Expense e = Expense.fromCsvString(line);
+        }
+    }
+
+CONCEPT 5 — EXCEPTION HANDLING (throughout)
+  Multiple layers:
+    • IllegalArgumentException for invalid user input
+    • IOException for file read/write errors
+    • NumberFormatException caught in InputValidator
+    • try-catch in fromCsvString() for corrupt CSV data
+
+CONCEPT 6 — JAVA DATE/TIME API (Expense.java, InputValidator.java)
+  LocalDate date = LocalDate.now();                // today
+  LocalDate.parse("15-03-2026", DATE_FORMAT);      // from string
+  date.format(DATE_FORMAT);                        // to string
+  date.getMonthValue();                            // 1–12
+  date.isBefore(other); date.isAfter(other);       // comparisons
+
+CONCEPT 7 — COMPARATOR & SORTING (ExpenseService.java)
+  By amount:  sorted.sort(Comparator.comparingDouble(Expense::getAmount));
+  By date:    sorted.sort(Comparator.comparing(Expense::getDate).reversed());
+
+CONCEPT 8 — SCANNER INPUT (InputValidator.java)
+  Scanner sc = new Scanner(System.in);
+  String input = sc.nextLine().trim();
+
+CONCEPT 9 — STATIC UTILITY CLASSES
+  Colors, InputValidator, ReportGenerator all use static methods.
+  Called as: Colors.GREEN, InputValidator.readString(sc, prompt)
+  No instantiation needed — clean utility pattern.
+
+CONCEPT 10 — STREAMS (ExpenseService.java)
+  this.nextId = loaded.stream()
+                       .mapToInt(Expense::getId)
+                       .max()
+                       .orElse(0) + 1;
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 5. HOW TO COMPILE & RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PREREQUISITES:
+  Java JDK 11 or higher must be installed.
+  Check: open Command Prompt and type:  java -version
+  Download from: https://www.oracle.com/java/technologies/downloads/
+
+─────────────────────────────────────────────
+OPTION A — Windows (Easiest)
+─────────────────────────────────────────────
+  Just double-click:  run.bat
+  Done. It compiles and runs automatically.
+
+─────────────────────────────────────────────
+OPTION B — Manual (Windows Command Prompt)
+─────────────────────────────────────────────
+  Step 1: Open Command Prompt
+  Step 2: Navigate to the project folder:
+            cd C:\Users\YourName\Downloads\SmartExpenseManager
+
+  Step 3: Create output folder:
+            mkdir out
+
+  Step 4: Compile ALL source files in one command:
+            javac -d out -sourcepath src src/model/Expense.java src/utils/Colors.java src/utils/InputValidator.java src/utils/ReportGenerator.java src/service/ExpenseService.java src/storage/FileManager.java src/Main.java
+
+  Step 5: Run:
+            java -cp out Main
+
+─────────────────────────────────────────────
+OPTION C — Linux / macOS Terminal
+─────────────────────────────────────────────
+  chmod +x run.sh
+  ./run.sh
+
+─────────────────────────────────────────────
+OPTION D — VS Code (Recommended for beginners)
+─────────────────────────────────────────────
+  1. Open VS Code
+  2. File → Open Folder → Select SmartExpenseManager
+  3. Install extension: "Extension Pack for Java" by Microsoft
+  4. Open src/Main.java
+  5. Click the ▶ Run button (top right)
+  6. Interact in the VS Code terminal at the bottom
+
+─────────────────────────────────────────────
+OPTION E — IntelliJ IDEA
+─────────────────────────────────────────────
+  1. Open IntelliJ IDEA
+  2. File → Open → Select SmartExpenseManager folder
+  3. Mark src/ as Sources Root:
+       Right-click src → Mark Directory as → Sources Root
+  4. Right-click Main.java → Run 'Main.main()'
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 6. FULL EXAMPLE TERMINAL OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+─────────────── STARTUP BANNER ───────────────
+  ╔══════════════════════════════════════════════════════╗
+  ║                                                      ║
+  ║        💰  SMART EXPENSE MANAGER  💰                ║
+  ║           Personal Finance Tracker                  ║
+  ║                  Core Java Project                  ║
+  ║                                                      ║
+  ╚══════════════════════════════════════════════════════╝
+
+  Track your income and expenses with ease!
+
+  No saved data found. Starting fresh.
+
+─────────────── MAIN MENU ───────────────
+  ─────────────────────────────────────────────
+                  MAIN MENU
+  ─────────────────────────────────────────────
+  1.  ➕  Add Transaction
+  2.  📋  View All Transactions
+  3.  🔍  Search by Category
+  4.  🗑️   Delete Transaction
+  5.  📊  View Financial Summary
+  6.  💾  Save Data to File
+  7.  🔃  Sort Transactions
+  8.  📅  Monthly Report
+  9.  📆  Filter by Date Range
+ 10.  🚪  Exit
+  ─────────────────────────────────────────────
+  Enter your choice: 1
+
+─────────────── OPTION 1: ADD INCOME ───────────────
+  ── ADD NEW TRANSACTION ──
+  Type [E=Expense / I=Income]: I
+  Title (e.g. Lunch, Salary): Monthly Salary
+  Category: Salary
+  Amount (₹): 50000
+  Date (dd-MM-yyyy or 'today'): 01-03-2026
+
+  INCOME | Monthly Salary      | Salary       | ₹50000.00 | 01-03-2026
+  Confirm add transaction? (y/n): y
+
+  ✔ Transaction added successfully!
+
+─────────────── OPTION 1: ADD EXPENSE ───────────────
+  ── ADD NEW TRANSACTION ──
+  Type [E=Expense / I=Income]: E
+  Title (e.g. Lunch, Salary): Team Lunch
+  Category: Food
+  Amount (₹): 850
+  Date (dd-MM-yyyy or 'today'): today
+
+  EXPENSE | Team Lunch           | Food         | ₹850.00 | 15-03-2026
+  Confirm add transaction? (y/n): y
+
+  ✔ Transaction added successfully!
+
+─────────────── OPTION 1: VALIDATION EXAMPLE ───────────────
+  ── ADD NEW TRANSACTION ──
+  Type [E=Expense / I=Income]: X
+  ✗ Invalid type. Enter E for Expense or I for Income.
+  Type [E=Expense / I=Income]: E
+  Title (e.g. Lunch, Salary):
+  ✗ Input cannot be empty. Please try again.
+  Title (e.g. Lunch, Salary): Bus Pass
+  Category: Transport
+  Amount (₹): -200
+  ✗ Amount must be greater than zero.
+  Amount (₹): abc
+  ✗ Invalid number. Please enter a numeric value (e.g. 250.50).
+  Amount (₹): 1200
+  Date (dd-MM-yyyy or 'today'): today
+  Confirm add transaction? (y/n): y
+  ✔ Transaction added successfully!
+
+─────────────── OPTION 2: VIEW ALL TRANSACTIONS ───────────────
+═════════════════════════════════════════════════════════════════
+  ALL TRANSACTIONS
+═════════════════════════════════════════════════════════════════
+  ID    Title                 Category        Amount      Type     Date
+─────────────────────────────────────────────────────────────────
+  1     Monthly Salary        Salary          +50000.00   INCOME   01-03-2026
+  2     Team Lunch            Food            -850.00     EXPENSE  15-03-2026
+  3     Bus Pass              Transport       -1200.00    EXPENSE  15-03-2026
+  4     Netflix               Entertainment   -499.00     EXPENSE  10-03-2026
+  5     Apartment Rent        Rent            -12000.00   EXPENSE  01-03-2026
+  6     Freelance Project     Salary          +15000.00   INCOME   08-03-2026
+─────────────────────────────────────────────────────────────────
+  Total records: 6
+═════════════════════════════════════════════════════════════════
+
+─────────────── OPTION 3: SEARCH BY CATEGORY ───────────────
+  ── SEARCH BY CATEGORY ──
+  Enter category name: Food
+
+═════════════════════════════════════════════════════════════════
+  TRANSACTIONS IN CATEGORY: FOOD
+═════════════════════════════════════════════════════════════════
+  ID    Title                 Category        Amount      Type     Date
+─────────────────────────────────────────────────────────────────
+  2     Team Lunch            Food            -850.00     EXPENSE  15-03-2026
+─────────────────────────────────────────────────────────────────
+  Total records: 1
+═════════════════════════════════════════════════════════════════
+
+─────────────── OPTION 4: DELETE TRANSACTION ───────────────
+  ── DELETE TRANSACTION ──
+  [shows full transaction table]
+  Enter Transaction ID to delete: 4
+
+  Transaction to delete:
+  [4] Netflix               | Entertainment   | -499.00  | EXPENSE | 10-03-2026
+
+  Are you sure you want to delete this? (y/n): y
+
+  ✔ Transaction deleted successfully!
+
+─────────────── OPTION 5: FINANCIAL SUMMARY ───────────────
+═════════════════════════════════════════════════════════════════════
+           💰  FINANCIAL SUMMARY REPORT
+═════════════════════════════════════════════════════════════════════
+  Total Income                   : ₹ 65,000.00
+  Total Expenses                 : ₹ 14,549.00
+─────────────────────────────────────────────────────────────────────
+  Net Balance                    : +₹ 50,451.00
+═════════════════════════════════════════════════════════════════════
+
+  📊  CATEGORY-WISE EXPENSE BREAKDOWN
+─────────────────────────────────────────────────────────────────────
+  Rent               ████████████████░░░░  ₹12000.00  (82.5%)
+  Transport          ████░░░░░░░░░░░░░░░░  ₹1200.00   (8.2%)
+  Food               ██░░░░░░░░░░░░░░░░░░  ₹850.00    (5.8%)
+
+─────────────── OPTION 6: SAVE DATA ───────────────
+  ✔ Data saved successfully!
+  File location: C:\Users\YourName\Downloads\SmartExpenseManager\expenses.csv
+
+─────────────── OPTION 7: SORT TRANSACTIONS ───────────────
+  ── SORT TRANSACTIONS ──
+  1.  Sort by Amount (Low → High)
+  2.  Sort by Date (Newest First)
+  Choose sort option: 1
+
+  [Shows table sorted: ₹850 → ₹1200 → ₹12000 → ₹15000 → ₹50000]
+
+─────────────── OPTION 8: MONTHLY REPORT ───────────────
+  ── MONTHLY REPORT ──
+  Enter month (1-12): 3
+  Enter year (e.g. 2024): 2026
+
+═════════════════════════════════════════════════════════════════════
+  📅  MONTHLY REPORT — MARCH 2026
+═════════════════════════════════════════════════════════════════════
+  [Shows all March 2026 transactions]
+
+  Monthly Income     : ₹ 65,000.00
+  Monthly Expenses   : ₹ 14,549.00
+  Net Balance        : ₹ 50,451.00
+
+─────────────── OPTION 9: DATE RANGE FILTER ───────────────
+  ── FILTER BY DATE RANGE ──
+  From date (dd-MM-yyyy): 01-03-2026
+  To date   (dd-MM-yyyy): 10-03-2026
+
+  [Shows only transactions between Mar 1 and Mar 10]
+
+─────────────── OPTION 10: EXIT WITH UNSAVED DATA ───────────────
+  ⚠ You have unsaved changes!
+  Save before exiting? (y/n): y
+
+  ✔ Data saved successfully!
+
+  ╔══════════════════════════════════════════════╗
+  ║   Thank you for using Smart Expense Manager! ║
+  ║          Keep tracking, keep saving! 💰      ║
+  ╚══════════════════════════════════════════════╝
+
+─────────────── NEXT STARTUP (auto-loads saved data) ───────────────
+  ✔ Loaded 5 transaction(s) from saved file.
+  File: C:\Users\YourName\Downloads\SmartExpenseManager\expenses.csv
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 7. HOW DATA IS SAVED (expenses.csv)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After pressing option 6 (Save), a file called expenses.csv is
+created in the project root folder. It looks like this:
+
+  id,title,category,amount,type,date
+  1,Monthly Salary,Salary,50000.0,INCOME,01-03-2026
+  2,Team Lunch,Food,850.0,EXPENSE,15-03-2026
+  3,Bus Pass,Transport,1200.0,EXPENSE,15-03-2026
+  5,Apartment Rent,Rent,12000.0,EXPENSE,01-03-2026
+  6,Freelance Project,Salary,15000.0,INCOME,08-03-2026
+
+On next launch, this file is detected and loaded automatically.
+Note: transaction ID 4 (Netflix) was deleted so it's not saved.
+
+You can open this file in Excel or Google Sheets too!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 8. COMMON ERRORS & FIXES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ERROR: 'javac' is not recognized
+  Fix: Java JDK is not installed.
+       Download from: https://www.oracle.com/java/technologies/downloads/
+       During install, make sure to check "Add to PATH"
+       Then restart Command Prompt and try again.
+
+ERROR: error: package model does not exist
+  Fix: You are running javac from the wrong folder.
+       Make sure you are inside the SmartExpenseManager folder:
+         cd C:\Users\YourName\Downloads\SmartExpenseManager
+       Then run the compile command again.
+
+ERROR: could not find or load main class Main
+  Fix: You are running java from the wrong folder.
+       Run:  java -cp out Main
+       The -cp out tells Java to look inside the out/ folder.
+
+ERROR: Colors cannot be resolved
+  Fix: Make sure Colors.java compiled successfully.
+       It must be compiled before FileManager.java.
+       Use the full compile command from Option B above.
+
+WARNING: Note: ... uses unchecked operations
+  This is just a warning, not an error. The app still runs fine.
+  It comes from using raw ArrayList in older Java versions.
+
+ERROR: The unsaved indicator [Unsaved changes] appears in menu
+  This is normal! It means you added/deleted data but haven't
+  pressed option 6 (Save) yet. Press 6 to save, or press 10
+  (Exit) and it will offer to save automatically.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 9. HOW TO UPLOAD TO GITHUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Create a GitHub account at https://github.com
+
+Step 2: Create a new repository:
+  • Click "New" (green button)
+  • Repository name: smart-expense-manager
+  • Description: Core Java console app for personal finance tracking
+  • Choose: Public
+  • Check: Add a README file
+  • Click: Create repository
+
+Step 3: Install Git from https://git-scm.com/downloads
+
+Step 4: Open Command Prompt inside your SmartExpenseManager folder
+
+Step 5: Run these commands one by one:
+
+  git init
+  git add .
+  git commit -m "Initial commit: Smart Expense Manager - Core Java project"
+  git branch -M main
+  git remote add origin https://github.com/YourUsername/smart-expense-manager.git
+  git push -u origin main
+
+Step 6: Refresh your GitHub page — all files are now uploaded!
+
+Step 7 (Optional): Add a .gitignore file to exclude compiled files:
+  Create a file named .gitignore with this content:
+    out/
+    *.class
+    expenses.csv
+
+Then commit it:
+  git add .gitignore
+  git commit -m "Add .gitignore"
+  git push
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## SUMMARY — WHAT THIS PROJECT SHOWS ON YOUR RESUME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✔  Object-Oriented Programming (4-layer architecture)
+  ✔  Java Collections (ArrayList, HashMap)
+  ✔  File I/O (BufferedReader, BufferedWriter, CSV)
+  ✔  Exception Handling (multiple try-catch layers)
+  ✔  Java Date/Time API (LocalDate, DateTimeFormatter)
+  ✔  Input Validation (robust Scanner handling)
+  ✔  Sorting & Filtering (Comparator, streams)
+  ✔  Clean project structure (model/service/storage/utils)
+  ✔  Professional code documentation (Javadoc comments)
+  ✔  GitHub-ready with README, scripts, and .gitignore

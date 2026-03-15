@@ -1,0 +1,17 @@
+# Compiled class files
+out/
+*.class
+
+# Auto-generated data file (personal data — don't commit)
+expenses.csv
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.project
+*.classpath
+
+# OS files
+.DS_Store
+Thumbs.db
